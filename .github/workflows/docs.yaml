@@ -25,10 +25,11 @@ jobs:
       # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
       - uses: mamba-org/provision-with-micromamba@main
         with:
-          python-version: 3.8
           environment-file: docs/requirements.yaml
           environment-name: docs
           channels: conda-forge,defaults
+          extra-specs: |
+            python=3.8
 
       - name: Install package
         # conda setup requires this special shell
