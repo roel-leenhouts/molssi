@@ -1,4 +1,4 @@
-name: CI
+name:  docs
 
 on:
   # GitHub has started calling new repo's first branch "main" https://github.com/github/renaming
@@ -6,18 +6,11 @@ on:
   push:
     branches:
       - "main"
-  pull_request:
-    branches:
-      - "main"
 
 jobs:
-  test:
-    name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macOS-latest, ubuntu-latest, windows-latest]
-        python-version: [3.8, 3.9, "3.10"]
+  build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -32,11 +25,10 @@ jobs:
       # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
       - uses: mamba-org/provision-with-micromamba@main
         with:
-          environment-file: devtools/conda-envs/test_env.yaml
-          environment-name: test
+          python-version: 3.8
+          environment-file: docs/requirements.yml
+          environment-name: docs
           channels: conda-forge,defaults
-          extra-specs: |
-            python=${{ matrix.python-version }}
 
       - name: Install package
         # conda setup requires this special shell
@@ -45,15 +37,10 @@ jobs:
           python -m pip install . --no-deps
           micromamba list
 
-      - name: Run tests
+      - name: Build Documentation
         # conda setup requires this special shell
         shell: bash -l {0}
         run: |
-          pytest -v --cov=molecool --cov-report=xml --color=yes molecool/tests/
-
-      - name: CodeCov
-        uses: codecov/codecov-action@v1
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
+          cd docs
+          make html
+          cd ../
