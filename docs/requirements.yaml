@@ -5,6 +5,11 @@ dependencies:
   - python
   - pip
   - numpy
+  - matplotlib
+  - pytest
+  - pytest-cov
+  - codecov
+
 
 
 
